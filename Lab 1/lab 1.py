@@ -1,22 +1,23 @@
 #Lab 1: Perceptron Learning Implementation
 import numpy as np
+import matplotlib.pyplot as plt
 
-def train_perceptron(X, y, lr=0.1, epochs=20):
-    weights = np.zeros(X.shape[1])
-    bias = 0
+def train_perceptron(input_data, labels, learning_rate=0.1, num_epochs=20):
+    model_weights = np.zeros(input_data.shape[1])
+    model_bias = 0
 
-    for epoch in range(epochs):
+    for epoch in range(num_epochs):
         errors = 0
 
-        for i in range(len(X)):
-            linear_output = np.dot(X[i], weights) + bias
+        for i in range(len(input_data)):
+            linear_output = np.dot(input_data[i], model_weights) + model_bias
 
-            y_pred = 1 if linear_output >= 0 else 0
+            predicted_label = 1 if linear_output >= 0 else 0
 
-            update = lr * (y[i] - y_pred)
+            update = learning_rate * (labels[i] - predicted_label)
 
-            weights += update * X[i]
-            bias += update
+            model_weights += update * input_data[i]
+            model_bias += update
 
             if update != 0:
                 errors += 1
@@ -25,54 +26,53 @@ def train_perceptron(X, y, lr=0.1, epochs=20):
             print(f"Converged at epoch {epoch+1}")
             break
 
-    return weights, bias
+    return model_weights, model_bias
 
 
 # AND Gate Dataset
-X = np.array([
+input_data = np.array([
     [0, 0],
     [0, 1],
     [1, 0],
     [1, 1]
 ])
 
-y = np.array([0, 0, 0, 1])
+labels = np.array([0, 0, 0, 1])
 
-weights, bias = train_perceptron(X, y)
+model_weights, model_bias = train_perceptron(input_data, labels)
 
-print("Weights:", weights)
-print("Bias:", bias)
+print("Weights:", model_weights)
+print("Bias:", model_bias)
 
 print("\nPredictions:")
-for x in X:
-    prediction = 1 if np.dot(x, weights) + bias >= 0 else 0
-    print(x, "->", prediction)
+for sample in input_data:
+    prediction = 1 if np.dot(sample, model_weights) + model_bias >= 0 else 0
+    print(sample, "->", prediction)
     
-#Decision boundary
-import matplotlib.pyplot as plt
-for i in range(len(X)):
-    if y[i] == 0:
-        plt.scatter(X[i,0], X[i,1],
+# Decision boundary visualization
+for i in range(len(input_data)):
+    if labels[i] == 0:
+        plt.scatter(input_data[i,0], input_data[i,1],
                     color='red',
                     marker='o',
                     s=100,
                     label='Class 0' if i == 0 else "")
     else:
-        plt.scatter(X[i,0], X[i,1],
+        plt.scatter(input_data[i,0], input_data[i,1],
                     color='blue',
                     marker='s',
                     s=100,
                     label='Class 1')
 
-# Decision Boundary
-x_values = np.linspace(-0.5, 1.5, 100)
+# Plot Decision Boundary
+boundary_x = np.linspace(-0.5, 1.5, 100)
 
-if weights[1] != 0:
-    y_values = -(weights[0] * x_values + bias) / weights[1]
+if model_weights[1] != 0:
+    boundary_y = -(model_weights[0] * boundary_x + model_bias) / model_weights[1]
 
     plt.plot(
-        x_values,
-        y_values,
+        boundary_x,
+        boundary_y,
         color='green',
         linewidth=2,
         label='Decision Boundary'
